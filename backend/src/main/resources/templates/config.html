@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网攻击检测与防御系统 - 检测配置</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1em;
+            text-align: center;
+        }
+
+        section {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>物联网攻击检测与防御系统 - 检测配置</h1>
+</header>
+
+<section>
+    <label for="modelSelection">选择检测模型：</label>
+    <select id="modelSelection">
+        <option value="model1">模型1</option>
+        <option value="model2">模型2</option>
+        <!-- 添加其他模型选项 -->
+    </select>
+
+    <label for="parameterAdjustment">调整模型参数：</label>
+    <input type="range" id="parameterAdjustment" min="0" max="100" value="50">
+
+    <label for="attackFeatures">选择攻击特征：</label>
+    <select id="attackFeatures" multiple>
+        <option value="feature1">特征1</option>
+        <option value="feature2">特征2</option>
+        <!-- 添加其他攻击特征选项 -->
+    </select>
+
+    <label for="realTimeMonitoring">实时监测配置：</label>
+    <input type="checkbox" id="realTimeMonitoring"> 启用实时监测
+
+    <label for="alarmConfig">报警配置：</label>
+    <input type="text" id="alarmConfig" placeholder="配置报警条件">
+
+    <label for="blackWhiteList">黑白名单管理：</label>
+    <textarea id="blackWhiteList" placeholder="添加黑白名单"></textarea>
+
+    <button onclick="saveConfiguration()">保存配置</button>
+</section>
+
+<script>
+    function saveConfiguration() {
+        // 实现保存配置的逻辑，可以使用 JavaScript 发送配置到后端
+        alert("配置已保存！");
+    }
+</script>
+
+</body>
+</html>
