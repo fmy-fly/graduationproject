@@ -6,6 +6,8 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.Session;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
@@ -44,6 +46,18 @@ public class WebSocketServer {
             if (session.isOpen()) {
                 try {
                     session.getBasicRemote().sendText(String.valueOf(message));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void broadcastAttack(int [] message) {
+        for (Session session : sessions) {
+            if (session.isOpen()) {
+                try {
+                    session.getBasicRemote().sendText(Arrays.toString(message));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -26,11 +26,11 @@ public class TestBP {
 		mp.setHiddenLayers("a");
 		mp.setLearningRate(0.3);
 		mp.setMomentum(0.8);
-		mp.setNormalizeAttributes(true);
+
 		mp.setNormalizeNumericClass(true);
 		mp.setReset(false);
 		mp.setSeed(0);
-		mp.setTrainingTime(300);
+		mp.setTrainingTime(300);mp.setNormalizeAttributes(true);
 		mp.setValidationSetSize(20);
 		mp.setValidationThreshold(50);
 		mp.setNominalToBinaryFilter(true);
@@ -41,9 +41,7 @@ public class TestBP {
 		Evaluation eval=new Evaluation(train);
 		eval.evaluateModel(mp, test);
 
-		System.out.println(eval.meanAbsoluteError());
-		System.out.println(eval.rootMeanSquaredError());
-		System.out.println(mp.toString());
+		System.out.println("评估结果" + "\n" + eval.toSummaryString() + "\n" + eval.toClassDetailsString());
 
 
 	}

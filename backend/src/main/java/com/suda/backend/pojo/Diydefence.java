@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Diydefence {
-
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private String title;
     private String description;

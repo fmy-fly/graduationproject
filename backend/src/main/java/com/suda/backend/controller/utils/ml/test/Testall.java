@@ -16,8 +16,8 @@ public class Testall {
                 Classifier classifier1;
                 Classifier classifier2;
                 Classifier classifier3;
-                Classifier classifier4;
-                Classifier classifier5;
+//                Classifier classifier4;
+//                Classifier classifier5;
                 Classifier classifier6;  // Add RandomForest classifier
 
                 File inputFile = new File("C:\\Users\\17914\\Desktop\\ML-ATIC-master\\ML-ATIC-master\\data\\TrainAndTest\\Train.arff");
@@ -41,7 +41,7 @@ public class Testall {
                 // LibSVM
 //                classifier4 = new LibSVM();
                 // k-NN
-                classifier5 = (Classifier) Class.forName("weka.classifiers.lazy.IBk").newInstance();
+//                classifier5 = (Classifier) Class.forName("weka.classifiers.lazy.IBk").newInstance();
                 // RandomForest
                 classifier6 = new RandomForest();
 
@@ -51,7 +51,7 @@ public class Testall {
                 classifier2.buildClassifier(instancesTrain);
                 classifier3.buildClassifier(instancesTrain);
 //                classifier4.buildClassifier(instancesTrain);
-                classifier5.buildClassifier(instancesTrain);
+//                classifier5.buildClassifier(instancesTrain);
                 classifier6.buildClassifier(instancesTrain);
 
                 // 保存模型
@@ -59,7 +59,7 @@ public class Testall {
                 SerializationHelper.write("C:\\Users\\17914\\Desktop\\graduationProject\\model\\J48_test.model", classifier2);
                 SerializationHelper.write("C:\\Users\\17914\\Desktop\\graduationProject\\model\\ZeroR.model", classifier3);
 //                SerializationHelper.write("C:\\Users\\17914\\Desktop\\graduationProject\\model\\LibSVM.model", classifier4);
-                SerializationHelper.write("C:\\Users\\17914\\Desktop\\graduationProject\\model\\kNN.model", classifier5);
+//                SerializationHelper.write("C:\\Users\\17914\\Desktop\\graduationProject\\model\\kNN.model", classifier5);
                 SerializationHelper.write("C:\\Users\\17914\\Desktop\\graduationProject\\model\\RandomForest.model", classifier6);
 
                 // 评估模型
@@ -73,8 +73,8 @@ public class Testall {
                 System.out.println("Zero算法评估结果" + "\n" + eval.toSummaryString() + "\n" + eval.toClassDetailsString());
 //                eval.evaluateModel(classifier4, instancesTest);
 //                System.out.println("LibSVM算法评估结果" + "\n" + eval.toSummaryString() + "\n" + eval.toClassDetailsString());
-                eval.evaluateModel(classifier5, instancesTest);
-                System.out.println("k-NN算法评估结果" + "\n" + eval.toSummaryString() + "\n" + eval.toClassDetailsString());
+//                eval.evaluateModel(classifier5, instancesTest);
+//                System.out.println("k-NN算法评估结果" + "\n" + eval.toSummaryString() + "\n" + eval.toClassDetailsString());
                 eval.evaluateModel(classifier6, instancesTest);
                 System.out.println("RandomForest算法评估结果" + "\n" + eval.toSummaryString() + "\n" + eval.toClassDetailsString());
         }

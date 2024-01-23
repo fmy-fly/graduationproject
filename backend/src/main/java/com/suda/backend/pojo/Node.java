@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Node {
-
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer size;
     private String label;

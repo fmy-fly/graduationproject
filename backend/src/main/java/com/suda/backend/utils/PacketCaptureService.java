@@ -15,8 +15,9 @@ public class PacketCaptureService {
     private PcapHandle handle;
     private volatile boolean captureRunning;  // 添加一个标志变量
     private  int packageCnt;  // 添加一个标志变量
-    private final Timer timer = new Timer();
+    private Timer timer = new Timer();
     public void startPacketCapture(String networkInterfaceName) throws PcapNativeException {
+        timer = new Timer();
         System.setProperty("jna.library.path", "src/main/resources/win32-x86-64");
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -27,6 +28,7 @@ public class PacketCaptureService {
         }, 0, 5000);  // 第一个参数是初始延迟，第二个参数是间隔时间（单位：毫秒）
         try {
             // 打开网络设备
+
             networkInterface = Pcaps.getDevByName(networkInterfaceName);
 
             // 打开捕获会话

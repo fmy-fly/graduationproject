@@ -130,4 +130,5 @@ export default {
 
  div.error-message {
      color: red;
- }</style>
+ }
+</style>

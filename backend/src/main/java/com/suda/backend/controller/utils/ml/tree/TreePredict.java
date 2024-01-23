@@ -1,6 +1,10 @@
 // -*- coding: utf-8 -*-
 package com.suda.backend.controller.utils.ml.tree;
 
+import com.suda.backend.consumer.WebSocketServer;
+import com.suda.backend.service.data.AddDataService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -8,33 +12,42 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
+@Service
 public class TreePredict {
-	
+	@Autowired
+	private AddDataService addDataService;
 	private double add;
 	private String pdd;
 	private String temp;
 	private Instance inst;
-	
+	private  int packageCnt;  // 添加一个标志变量
+	private  Timer timer = new Timer();
+	private int [] record = new int [6];
+	//normal\dos\probing\R2l\U2R
+	private volatile boolean predictRunning;  // 添加一个标志变量
 	private Vector<String> predictdata;
 	
 	public Vector<String> getPredictdata() {
 		return predictdata;
 	}
 
-	public void setPredictdata(Vector<String> predictdata) {
-		this.predictdata = predictdata;
+
+	public void stopPredict(){
+		this.predictRunning = false;
+		timer.cancel();
 	}
-	public TreePredict(){
-		try {
-			predict();
-		} catch (Exception e) {
-			
-		}
+	public void getCnt(){
+		System.out.println("广播" + record[5]);
+		WebSocketServer.broadcastAttack(record);
+		System.out.println( "数据库" + record[5]);
+		addDataService.add(record);
+        Arrays.fill(record, 0);
 	}
-	public void predict() throws Exception{	
+	public void predict() throws Exception{
+
+		predictRunning = true;
 		predictdata=new Vector<String>();
 		
 		Instances train = DataSource.read("C:\\Users\\17914\\Desktop\\ML-ATIC-master\\ML-ATIC-master\\data\\TrainAndTest\\Train.arff");
@@ -44,11 +57,18 @@ public class TreePredict {
 		LoaderTree tree=new LoaderTree();
 		
 		
-		FileReader reader = new FileReader("C:\\Users\\17914\\Desktop\\ML-ATIC-master\\test.txt");
+		FileReader reader = new FileReader("C:\\Users\\17914\\Desktop\\ML-ATIC-master\\20test.txt");
 		BufferedReader br = new BufferedReader(reader);
-		
+		timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				getCnt();
+				System.out.println("一个周期结束");
+			}
+		}, 0, 5000);  // 第一个参数是初始延迟，第二个参数是间隔时间（单位：毫秒）
 		String string = null;
-		while ((string = br.readLine()) != null) {
+		while ((string = br.readLine()) != null && predictRunning) {
 
 			String[] tmp = string.split(",");
 
@@ -66,78 +86,141 @@ public class TreePredict {
 			inst.setDataset(race);
 			try {
 				double res = tree.loadTree().classifyInstance(inst);
-				
+				record[5]++;
 				switch((int)res){
 				
-				case 0:setPdd("back.");break;
-				case 1:setPdd("teardrop.");break;
-				case 2:setPdd("loadmodule.");break;
-				case 3:setPdd("neptune.");break;
-				case 4:setPdd("rootkit.");break;
-				case 5:setPdd("phf.");break;
-				case 6:setPdd("satan.");break;
-				case 7:setPdd("buffer_overflow.");break;
-				case 8:setPdd("ftp_write.");break;
-				case 9:setPdd("land.");break;
-				case 10:setPdd("spy.");break;
-				case 11:setPdd("ipsweep.");break;
-				case 12:setPdd("multihop.");break;
-				case 13:setPdd("smurf.");break;
-				case 14:setPdd("pod.");break;
-				case 15:setPdd("perl.");break;
-				case 16:setPdd("warezclient.");break;
-				case 17:setPdd("nmap.");break;
-				case 18:setPdd("imap.");break;
-				case 19:setPdd("warezmaster.");break;
-				case 20:setPdd("portsweep.");break;
-				case 21:setPdd("normal.");break;
-				case 22:setPdd("guess_passwd.");break;
-				case 23:setPdd("mscan.");break;
-				case 24:setPdd("apache2.");break;
-				case 25:setPdd("mailbomb.");break;
-				case 26:setPdd("processtable.");break;
-				case 27:setPdd("udpstorm.");break;
-				case 28:setPdd("httptunnel.");break;
-				case 29:setPdd("ps.");break;
-				case 30:setPdd("sqlattack.");break;
-				case 31:setPdd("xterm.");break;
-				case 32:setPdd("named.");break;
-				case 33:setPdd("sendmail.");break;
-				case 34:setPdd("snmpgetattack.");break;
-				case 35:setPdd("snmpguess.");break;
-				case 36:setPdd("worm.");break;
-				case 37:setPdd("xlock.");break;
-				case 38:setPdd("xsnoop.");break;
-				case 39:setPdd("saint.");break;
+				case 0:
+					setPdd("back.");
+					record[1]++;
+					break;
+				case 1:
+					setPdd("teardrop.");
+					record[1]++;
+					break;
+				case 2:
+					setPdd("loadmodule.");
+					record[4]++;
+					break;
+				case 3:
+					setPdd("neptune.");
+					record[1]++;
+					break;
+				case 4:
+					setPdd("rootkit.");
+					record[4]++;
+					break;
+				case 5:
+					setPdd("phf.");
+					record[3]++;
+					break;
+				case 6:
+					setPdd("satan.");
+					record[2]++;
+					break;
+				case 7:
+					setPdd("buffer_overflow.");
+					record[4]++;
+					break;
+				case 8:
+					setPdd("ftp_write.");
+					record[3]++;
+					break;
+				case 9:
+					setPdd("land.");
+					record[1]++;
+					break;
+				case 10:
+					setPdd("spy.");
+					record[3]++;
+					break;
+				case 11:
+					setPdd("ipsweep.");
+					record[2]++;
+					break;
+				case 12:
+					setPdd("multihop.");
+					record[3]++;
+					break;
+				case 13:
+					setPdd("smurf.");
+					record[1]++;
+					break;
+				case 14:
+					setPdd("pod.");
+					record[1]++;
+
+					break;
+				case 15:
+					setPdd("perl.");
+					record[4]++;
+					break;
+				case 16:
+					setPdd("warezclient.");
+					record[3]++;
+					break;
+				case 17:
+					setPdd("nmap.");
+					record[2]++;
+					break;
+				case 18:
+					setPdd("imap.");
+					record[3]++;
+					break;
+				case 19:
+					setPdd("warezmaster.");
+					record[3]++;
+					break;
+				case 20:
+					setPdd("portsweep.");
+					record[2]++;
+					break;
+				case 21:
+					setPdd("normal.");
+					record[0]++;
+					break;
+				case 22:
+					setPdd("guess_passwd.");
+					record[3]++;
+					break;
+				case 23:
+					setPdd("mscan.");
+					record[2]++;
+					break;
+				case 24:setPdd("apache2.");	record[4]++;break;
+				case 25:setPdd("mailbomb.");record[1]++;break;
+				case 26:setPdd("processtable.");record[1]++;break;
+				case 27:setPdd("udpstorm.");record[1]++;break;
+				case 28:setPdd("httptunnel.");record[1]++;break;
+				case 29:setPdd("ps.");record[1]++;break;
+				case 30:setPdd("sqlattack.");	record[4]++;break;
+				case 31:setPdd("xterm.");record[1]++;break;
+				case 32:setPdd("named.");record[3]++;break;
+				case 33:setPdd("sendmail.");record[3]++;break;
+				case 34:setPdd("snmpgetattack.");record[3]++;break;
+				case 35:setPdd("snmpguess.");record[3]++;break;
+				case 36:setPdd("worm.");record[3]++;break;
+				case 37:setPdd("xlock.");record[3]++;break;
+				case 38:setPdd("xsnoop.");record[3]++;break;
+				case 39:
+					setPdd("saint.");
+					record[2]++;
+					break;
 				
 				}
-				temp=getPdd();
-				predictdata.add(temp);				//System.out.println("预测值"+getPdd());
+//				temp=getPdd();
+//				predictdata.add(temp);				//System.out.println("预测值"+getPdd());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			
 		}
+		System.out.println("停止监测");
 		br.close();
 		reader.close();
 		
 	}
 	
-	public static void main(String[] args) throws Exception{
-		TreePredict PredictData=new TreePredict();
-		String str5 ="\n";
-		try {
-			PredictData.predict();
-			for (Iterator<String> it = PredictData.getPredictdata().iterator(); it.hasNext(); ) {
-				str5 += it.next();
-				str5 += "\n";
-			}
-			System.out.println(str5);
-		}
-		catch (Exception e){
-			System.out.println(e);
-		}
-	}
+
 	public String getPdd() {
 		return pdd;
 	}
@@ -157,7 +240,7 @@ public class TreePredict {
 
 	public void setTemp(String temp) {
 		this.temp = temp;
-	}		
+	}
 }
 
 
