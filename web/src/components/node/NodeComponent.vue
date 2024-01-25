@@ -4,7 +4,8 @@
 
     <div id="network_id" class="network" style="height:60vh"></div>
     <div v-if="dialogVisible1" id="config1">
-      <h2>配置节点：{{ node.id }} </h2>
+      <h2 v-if="node.type === 0">配置节点：{{ node.id }} </h2>
+      <h2 v-else>配置蜜罐：{{ node.id }} </h2>
       <form @submit.prevent="saveConfig">
         <label for="label" class="inline-elements" style="font-weight: bolder;">名称：</label>
         <input id="label" type="text" v-model="node.label" class="inline-elements">
@@ -24,7 +25,8 @@
 
         <button type="button" class="btn btn-primary inline-elements" @click="update_node(node)">保存修改</button>
 
-
+        <button v-if="node.type === 1" type="button" class="btn btn-danger inline-elements"
+          @click="remove_node(node)">移除蜜罐</button>
 
 
 
@@ -94,26 +96,50 @@
     <div class="button-container">
       <button type="button" class="btn btn-primary" @click="add_node_button()">增加节点</button>
       <button type="button" class="btn btn-success" @click="add_edge_button()">增加边</button>
+
     </div>
 
     <el-dialog title="测试框" :visible="dialogVisible" width="width">
 
 
     </el-dialog>
-
+    <div v-if="showPopup" class="popup-container">
+      <div class="popup">
+        <div class="popup-header">
+          <div class="alert">警报：遭受攻击</div>
+          <div>
+            <button style="background-color: blue;
+  /* 按钮颜色，根据需要调整 */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer; " type="button" class="btn btn-primary" @click="closePopup">我已知晓</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 import $ from 'jquery'
 import { useStore } from 'vuex'
 import Vis from "vis";
+
 export default {
   name: "NodeComponent",
 
 
   data() {
     const store = useStore();
+    const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.id}`;
+    let socket = null;
+    let showPopup = false;
     return {
+      socketUrl,
+      socket,
+      showPopup,
+
       diyedge: [],
       addnode: {},
       addedge: {},
@@ -200,7 +226,43 @@ export default {
     };
   },
   methods: {
+
+    closeWebSocket() {
+      if (this.socket) {
+        this.socket.close();
+      }
+    },
+    openPopup() {
+      this.showPopup = true;
+    },
+    closePopup() {
+      this.showPopup = false;
+    },
+    // 使用 mounted 生命周期钩子替代 onMounted
+
+    // 使用 beforeDestroy 生命周期钩子替代 onUnmounted
+    beforeUnmount() {
+      this.closeWebSocket();
+    },
     init() {
+      this.socket = new WebSocket(this.socketUrl);
+
+      this.socket.onopen = () => {
+        console.log("connected!");
+      }
+
+      this.socket.onmessage = (msg) => {
+        const data = JSON.parse(msg.data);
+        console.log(data);
+        if (data === true) {
+          console.log("执行");
+          this.openPopup();
+        }
+      }
+
+      this.socket.onclose = () => {
+        console.log("disconnected!");
+      }
       let _this = this;
 
       //1.创建一个nodes数组
@@ -440,6 +502,7 @@ export default {
               break;
             }
           }
+          console.log("类型：" + this.node.type);
 
 
         }
@@ -465,6 +528,27 @@ export default {
         }
       })
     },
+    remove_node(node) {
+      $.ajax({
+        url: "http://127.0.0.1:3000/node/remove/",
+        type: "post",
+        data: {
+          id: node.id,
+        },
+        headers: {
+          Authorization: "Bearer " + this.store.state.user.token,
+        },
+        success(resp) {
+          if (resp.error_message === "success") {
+            this.refresh_nodes()
+          }
+        }
+      })
+
+
+    },
+
+
     update_node(node) {
 
       $.ajax({
@@ -472,6 +556,7 @@ export default {
         type: "post",
         data: {
           id: node.id,
+          type: node.type,
           label: node.label,
           size: node.size,
           shape: node.shape,
@@ -810,4 +895,42 @@ export default {
 
 
 /* 当状态为开启时的样式 */
+.popup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  /* 半透明背景，可以根据需要调整 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* 设置一个较高的层级，确保在其他元素之上 */
+}
+
+.popup {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  /* 根据需要调整弹窗宽度 */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /* 阴影效果，根据需要调整 */
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert {
+  font-weight: bold;
+  color: red;
+  /* 警告颜色，根据需要调整 */
+}
+
+.btn-primary {}
 </style>

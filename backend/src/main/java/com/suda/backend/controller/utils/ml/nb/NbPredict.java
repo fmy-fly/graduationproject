@@ -2,9 +2,15 @@
 package com.suda.backend.controller.utils.ml.nb;
 
 import com.suda.backend.consumer.WebSocketServer;
+import com.suda.backend.pojo.Defence;
+import com.suda.backend.pojo.Node;
 import com.suda.backend.service.data.AddDataService;
+import com.suda.backend.service.defence.GetListService;
 import com.suda.backend.service.email.SendMailService;
 import com.suda.backend.service.email.SendMailsService;
+import com.suda.backend.service.node.AddHoneyPotService;
+import com.suda.backend.service.node.CloseNodeService;
+import com.suda.backend.service.node.GetListNodeService;
 import com.suda.backend.service.operate.AddOperateService;
 import com.suda.backend.service.setting.GetListSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +32,17 @@ public class NbPredict {
     private SendMailsService sendMailsService;
     @Autowired
     private GetListSettingService getListSettingService;
+    @Autowired
+    private CloseNodeService closenodeService;
+    @Autowired
+    private GetListNodeService getListNodeService;
+    @Autowired
+    private GetListService getListService;
+    @Autowired
+    private AddHoneyPotService addHoneyPotService;
     private double add;
     private String pdd;
+    private  Defence[] defences ;
     private String temp;
     private Instance inst;
     private  int packageCnt;  // 添加一个标志变量
@@ -35,9 +50,19 @@ public class NbPredict {
     private int [] record = new int [6];
     //normal\dos\probing\R2l\U2R
     private int Threshold ;
+    private int nodeThreshold;
+    private int alert ;
     private volatile boolean predictRunning;  // 添加一个标志变量
     private int cnt = 0;
+    private  boolean is_honeyPot;
+    private boolean is_closeNode;
+    private boolean is_sendMessage;
+    private int nodelength;
+    private Node[] nodes;
     private Vector<String> predictdata;
+   private Random random = new Random();
+
+    // 生成一个在1到指定数之间的随机数
 
     public Vector<String> getPredictdata() {
         return predictdata;
@@ -55,13 +80,46 @@ public class NbPredict {
         addDataService.add(record);
         Arrays.fill(record, 0);
         cnt++;
-        if (cnt % Threshold == 0){
-            sendMailsService.sendMails();
+        if (cnt % Threshold == 0 && is_sendMessage){
+//            sendMailsService.sendMails();
+            if (alert == 2){
+            WebSocketServer.broadcastPopUp();
+            System.out.println("发送警报");
+            }
+            else {
+                sendMailsService.sendMails();
+                System.out.println("发送邮件");
+            }
         }
+        if (is_closeNode && cnt % nodeThreshold == 0){
+            HashMap<String,String> map = new HashMap<>();
+            int randomNumber = random.nextInt(nodelength);
+            while(nodes[randomNumber].getType() == 1){
+                randomNumber = random.nextInt(nodelength);
+            }
+            System.out.println("关闭节点" + randomNumber);
+            map.put("id", String.valueOf(nodes[randomNumber].getId()));
+            closenodeService.close(map);
+            if (is_honeyPot){
+                    addHoneyPotService.addPot();
+            }
+        }
+
 
     }
     public void predict() throws Exception{
-      Threshold =  getListSettingService.getList().getFirst().getThreshold();
+         alert=  getListSettingService.getList().getFirst().getNotice();
+         Threshold =  getListSettingService.getList().getFirst().getThreshold();
+        nodeThreshold = getListSettingService.getList().getFirst().getNode();
+         defences =getListService.getList().toArray(new Defence[0]);
+        is_closeNode = defences[0].getStart() == 1;
+        is_sendMessage = defences[1].getStart() ==1;
+        is_honeyPot = defences[2].getStart() == 1;
+        nodes = getListNodeService.getList().toArray(new Node[0]);
+        nodelength = nodes.length;
+
+
+
         predictRunning = true;
         predictdata=new Vector<String>();
 

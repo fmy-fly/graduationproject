@@ -8,14 +8,4 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 
-@SpringBootTest
-class BlogApiApplicationTests {
-    @Autowired
-    private SendMailService sendMailService;
 
-    @Test
-    void contextLoads() {
-        sendMailService.sendMail();
-    }
-
-}

@@ -42,6 +42,16 @@
                 </div>
             </div>
         </div>
+        <div v-if="showPopup" class="popup-container">
+            <div class="popup">
+                <div class="popup-header">
+                    <div class="alert">警报：遭受攻击</div>
+                    <div>
+                        <button type="button" class="btn btn-primary" @click="closePopup">我已知晓</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -58,6 +68,7 @@ export default {
     setup() {
         // 在 setup 中使用 ref 创建响应式数据
         const store = useStore();
+        let showPopup = ref(false);
         let is_capture = ref(false);
         let is_predict = ref(false);
         let trafficChart = null;
@@ -65,9 +76,18 @@ export default {
         let barChart = null;
         const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.id}`;
         let socket = null;
-        let mlType = "nb"; // 您可以根据需要设置初始值
+        let mlType = "tree"; // 您可以根据需要设置初始值
+        let button_state = ref();
+        const modelOptions = ref([
+            { value: 1, label: 'tree' },
+            { value: 2, label: 'nb' },
+            { value: 3, label: 'rf' },
+            { value: 4, label: 'zero' }
+            // 可以根据需要添加更多的模型选项
+        ]);
         onMounted(() => {
-
+            refresh_button();
+            refresh_setting();
             pieChart = new Chart(document.getElementById('pieChart').getContext('2d'), {
                 type: 'pie',
                 data: {
@@ -178,7 +198,11 @@ export default {
                     updateBarChart(data);
 
                     // 在这里你可以处理数组
-                } else {
+                }
+                else if (data == true) {
+                    openPopup();
+                }
+                else {
                     updateTrafficChart(data);
                 }
 
@@ -204,12 +228,19 @@ export default {
                 socket.close();
             }
         })
+        const openPopup = () => {
 
+            showPopup.value = true;
+        };
+
+        const closePopup = () => {
+            showPopup.value = false;
+        };
         const togglePredict = () => {
             // 切换 is_predict 的值
 
             is_predict.value = !is_predict.value;
-
+            update_predict();
             // 根据 is_capture 调用相应的方法
             if (is_predict.value) {
                 if (is_capture.value) toggleCapture();
@@ -227,6 +258,7 @@ export default {
             is_capture.value = !is_capture.value;
             console.log(is_capture.value)
             // 根据 is_capture 调用相应的方法
+            update_capture();
             if (is_capture.value) {
                 if (is_predict.value) togglePredict();
                 handleButtonClick();
@@ -236,7 +268,63 @@ export default {
                 stopButtonClick();
             }
         }
+        const refresh_button = () => {
 
+            $.ajax({
+                url: "http://127.0.0.1:3000/button/getlist/",
+                type: "get",
+                headers: {
+                    Authorization: "Bearer " + store.state.user.token,
+                },
+                success(resp) {
+
+                    is_capture.value = resp[0].state === 0 ? false : true;
+                    is_predict.value = resp[1].state === 0 ? false : true;
+                    console.log(resp);
+
+                }
+            })
+        }
+        const update_capture = () => {
+
+            $.ajax({
+                url: "http://127.0.0.1:3000/button/update/",
+                type: "post",
+                data: {
+                    id: 1,
+                    state: is_capture.value === false ? 0 : 1,
+                },
+                headers: {
+                    Authorization: "Bearer " + store.state.user.token,
+                },
+                success(resp) {
+
+
+                    console.log(resp);
+
+                }
+            })
+        }
+        const update_predict = () => {
+
+            $.ajax({
+                url: "http://127.0.0.1:3000/button/update/",
+                type: "post",
+                data: {
+                    id: 2,
+                    state: is_predict.value == false ? 0 : 1,
+                },
+                headers: {
+                    Authorization: "Bearer " + store.state.user.token,
+                },
+                success(resp) {
+
+
+                    console.log(resp);
+
+                }
+            })
+        }
         const handleButtonClick = () => {
 
             $.ajax({
@@ -340,7 +428,20 @@ export default {
 
         };
 
-
+        const refresh_setting = () => {
+            $.ajax({
+                url: "http://127.0.0.1:3000/setting/getlist/",
+                type: "get",
+                headers: {
+                    Authorization: "Bearer " + store.state.user.token,
+                },
+                success(resp) {
+                    let t = resp[0].ml;
+                    mlType = modelOptions.value.find(model => model.value === t).label;
+                    console.log(mlType);
+                }
+            })
+        };
 
 
 
@@ -352,6 +453,12 @@ export default {
             pieChart,
             barChart,
             mlType,
+            button_state,
+            showPopup,
+            modelOptions,
+            openPopup,
+            closePopup,
+            refresh_button,
             updateBarChart,
             handleButtonClick,
             stopButtonClick,
@@ -360,7 +467,10 @@ export default {
             updateTrafficChart,
             updatePieChart,
             stopButtonClickPredict,
-            handleButtonClickPredict
+            handleButtonClickPredict,
+            update_capture,
+            update_predict,
+            refresh_setting,
 
         };
     },
@@ -372,5 +482,52 @@ export default {
 button {
     margin-top: 30px;
     /* 或者设置合适的间距值 */
+}
+
+.popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    /* 半透明背景，可以根据需要调整 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* 设置一个较高的层级，确保在其他元素之上 */
+}
+
+.popup {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    /* 根据需要调整弹窗宽度 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* 阴影效果，根据需要调整 */
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.alert {
+    font-weight: bold;
+    color: red;
+    /* 警告颜色，根据需要调整 */
+}
+
+.btn-primary {
+    background-color: blue;
+    /* 按钮颜色，根据需要调整 */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 </style>

@@ -19,7 +19,7 @@ public class AddNodeServiceImpl implements AddNodeService {
     @Override
     public Map<String, String> add(Map<String, String> data) {
         Map<String, String> map = new HashMap<>();
-        if(data.get("size") == null || data.get("state") == null){
+        if(data.get("size") == null || data.get("state") ==null){
             map.put("error_message", "图片不能为空");
             return map;
         }
@@ -54,7 +54,7 @@ public class AddNodeServiceImpl implements AddNodeService {
 
 
 
-        Node node = new Node(null,size,label,shape,image,state);
+        Node node = new Node(null,0,size,label,shape,image,state);
         nodeMapper.insert(node);
         map.put("error_message", "success");
 

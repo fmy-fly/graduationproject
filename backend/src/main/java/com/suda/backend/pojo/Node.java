@@ -16,6 +16,7 @@ import java.util.Date;
 public class Node {
     @TableId(type = IdType.AUTO)
     private Integer id;
+    private Integer type;
     private Integer size;
     private String label;
     private String shape;

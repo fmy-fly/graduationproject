@@ -27,7 +27,7 @@ public class UpdateNodeServiceImpl implements UpdateNodeService {
 
 
         int id = Integer.parseInt(data.get("id"));
-
+        int type = Integer.parseInt(data.get("type"));
         String label = data.get("label");
         String shape = data.get("shape");
         String image = data.get("image");
@@ -65,6 +65,7 @@ public class UpdateNodeServiceImpl implements UpdateNodeService {
 
         Node node1 = new Node(
                 node.getId(),
+                type,
                 size,
                 label,
                 shape,

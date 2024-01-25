@@ -55,7 +55,7 @@ public class AddDataServiceImpl implements AddDataService {
         String alerttype;
         Map<String, String> map = new HashMap<>();
         double percent = (double)data[0]/data[5] ;
-        if (percent < 0.2){
+        if (percent < 0.25){
             alerttype = "严重";
         }
         else if (percent < 0.5){

@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Setting {
+public class Button{
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Integer ml;
-    private Integer node;
-    private Integer threshold;
-    private Integer notice;
+    private Integer state;
+
 }

@@ -1,5 +1,7 @@
 package com.suda.backend.consumer;
 
+import com.suda.backend.service.operate.AddOperateService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -8,12 +10,14 @@ import javax.websocket.server.ServerEndpoint;
 import javax.websocket.Session;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 @ServerEndpoint("/websocket/{token}")
 public class WebSocketServer {
-
+    @Autowired
+    private static AddOperateService addOperateService;
     private static final CopyOnWriteArrayList<Session> sessions = new CopyOnWriteArrayList<>();
 
     @OnOpen
@@ -64,5 +68,23 @@ public class WebSocketServer {
             }
         }
     }
+    public static void broadcastPopUp() {
+        HashMap<String,String> map = new HashMap<>();
+        map.put("type","弹窗");
+        map.put("description","弹窗警告");
+        addOperateService.add(map);
+        for (Session session : sessions) {
+            if (session.isOpen()) {
+                try {
+                    session.getBasicRemote().sendText(String.valueOf(true));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
 }
 

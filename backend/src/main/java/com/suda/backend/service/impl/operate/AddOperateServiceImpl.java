@@ -20,9 +20,9 @@ public class AddOperateServiceImpl implements AddOperateService {
     public Map<String, String> add(Map<String, String> data) {
         Map<String, String> map = new HashMap<>();
         Date now = new Date();
-        String decription = "测试";
-        String type = "测试";
-        Operate operate = new Operate(null,now,type,decription);
+        String description = data.get("description");
+        String type = data.get("type");
+        Operate operate = new Operate(null,now,type,description);
         operateMapper.insert(operate);
 
 

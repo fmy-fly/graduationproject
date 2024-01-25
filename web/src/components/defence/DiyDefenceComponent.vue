@@ -143,6 +143,16 @@
                 </table>
             </div>
         </div>
+        <div v-if="showPopup" class="popup-container">
+            <div class="popup">
+                <div class="popup-header">
+                    <div class="alert">警报：遭受攻击</div>
+                    <div>
+                        <button type="button" class="btn btn-primary" @click="closePopup">我已知晓</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -150,7 +160,7 @@
 import { ref, reactive } from 'vue'
 import $ from 'jquery'
 import { useStore } from 'vuex'
-
+import { onMounted, onUnmounted } from 'vue'
 import ace from 'ace-builds'
 
 import { Modal } from 'bootstrap/dist/js/bootstrap'
@@ -177,6 +187,10 @@ export default {
 
 
         const store = useStore()
+
+        const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.id}`;
+        let socket = null;
+        let showPopup = ref(false);
         let diydefences = ref([])
 
         const diydefenceadd = reactive({
@@ -230,6 +244,43 @@ export default {
         }
 
 
+        onMounted(() => {
+            socket = new WebSocket(socketUrl);
+            socket.onopen = () => {
+                console.log("connected!");
+            }
+            socket.onmessage = msg => {
+                const data = JSON.parse(msg.data);
+                console.log(data);
+                if (data == true) {
+                    console.log("执行");
+                    openPopup();
+                }
+            }
+
+            socket.onclose = () => {
+                console.log("disconnected!");
+            }
+
+
+
+        });
+
+        onUnmounted(() => {
+
+            if (socket) {
+                socket.close();
+            }
+        })
+
+        const openPopup = () => {
+
+            showPopup.value = true;
+        };
+
+        const closePopup = () => {
+            showPopup.value = false;
+        };
 
 
         const update_diydefence = (diydefence) => {
@@ -284,6 +335,9 @@ export default {
         return {
             diydefences,
             diydefenceadd,
+            showPopup,
+            openPopup,
+            closePopup,
             add_diydefence,
             update_diydefence,
             remove_diydefence,
@@ -330,6 +384,53 @@ export default {
 
 div.error-message {
     color: red
+}
+
+.popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    /* 半透明背景，可以根据需要调整 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* 设置一个较高的层级，确保在其他元素之上 */
+}
+
+.popup {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    /* 根据需要调整弹窗宽度 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* 阴影效果，根据需要调整 */
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.alert {
+    font-weight: bold;
+    color: red;
+    /* 警告颜色，根据需要调整 */
+}
+
+.btn-primary {
+    background-color: blue;
+    /* 按钮颜色，根据需要调整 */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 </style>
 

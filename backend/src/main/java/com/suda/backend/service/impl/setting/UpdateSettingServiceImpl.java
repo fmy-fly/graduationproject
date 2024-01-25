@@ -31,8 +31,9 @@ public class UpdateSettingServiceImpl implements UpdateSettingService {
         int ml = Integer.parseInt(data.get("ml"));
         int  threshold = Integer.parseInt(data.get("threshold"));
         int  notice = Integer.parseInt(data.get("notice"));
+        int  node = Integer.parseInt(data.get("node"));
         Setting setting = new Setting(
-               1, ml,threshold,notice
+               1, ml,node,threshold,notice
 
 
 
