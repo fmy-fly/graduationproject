@@ -159,46 +159,6 @@ export default {
       container: null,
       //   节点数组
       nodesArray: [
-        // {
-        //   id: 0,
-        //   label: "大前端",
-        //   color: { background: "yellow" }
-        // },
-        // {
-        //   id: 1,
-        //   label: "HTML",  
-        //   color: { background: "pink" }
-        // },
-        // {
-        //   id: 2,
-        //   label: "JavaScript",
-        //   color: { background: "pink" }
-        // },
-        // {
-        //   id: 3,
-        //   label: "CSS",
-        //   color: { background: "pink" }
-        // },
-        // {
-        //   id: 4,
-        //   label: "三大主流框架",
-        //   color: { background: "pink" }
-        // },
-        // {
-        //   id: 5,
-        //   label: "vue.js",
-        //   color: { background: "pink" }
-        // },
-        // {
-        //   id: 6,
-        //   label: "react.js",
-        //   color: { background: "pink" }
-        // },
-        // {
-        //   id: 7,
-        //   label: "angular.js",
-        //   color: { background: "pink" }
-        // }
       ],
       //   关系线数组
       edgesArray: [
@@ -214,12 +174,7 @@ export default {
           },
           length: 300,
         },
-        // { from: 0, to: 2, label: "step1" },
-        // { from: 0, to: 3, label: "step1" },
-        // { from: 0, to: 4, label: "step1" },
-        // { from: 4, to: 5, label: "step2" },
-        // { from: 4, to: 6, label: "step2" },
-        // { from: 4, to: 7, label: "step2" }
+      
       ],
       options: {},
       data: {}
@@ -326,13 +281,7 @@ export default {
         edges: {
           width: 1,
           length: 260,
-          // color: {
-          //   color: "#848484",
-          //   highlight: "#848484",
-          //   hover: "#848484",
-          //   inherit: "from",
-          //   opacity: 1.0
-          // },
+     
           shadow: true,
           smooth: {
             //设置两个节点之前的连线的状态
@@ -441,10 +390,6 @@ export default {
 
           _this.edges.clear();
           _this.edges.add(t); // 使用更新后的resp来更新nodes
-          // 如果您有edges的数据，也进行类似的操作
-          // _this.edges.add(yourUpdatedEdgesArray);
-
-          // 重新设置_data对象并重新渲染图
           _this.data = {
             nodes: _this.nodes,
             edges: _this.edges
@@ -452,8 +397,89 @@ export default {
 
           _this.network.setData(_this.data); // 使用setData方法重新设置数据
           _this.network.stabilize(); // 可选，如果您希望图稳定
+
         }
       });
+    },
+
+    check_color(nodes) {
+
+      for (let i = 0; i < nodes.length; i++) {
+        let id = nodes[i].id;
+        let node = nodes[i];
+        if (node.state === 0) {
+          for (let a of this.diyedge) {
+            if (a.from === id || a.to === id) {
+              let edge = {
+                id: a.id,
+                fromn: a.from,
+                ton: a.to,
+                label: a.label,
+                color: "red",
+                highlight: "red",
+                hover: "lightblue",
+                length: a.length,
+              }
+
+              this.update_edge(edge);
+              this.refresh_edges();
+            }
+          }
+        }
+        else {
+          console.log("节点", this.nodesArray);
+
+
+          for (let a of this.diyedge) {
+            if (a.from === id) {
+              for (let b of this.nodesArray) {
+                if (b.id === a.to && b.state === 1) {
+                  let edge = {
+                    id: a.id,
+                    fromn: a.from,
+                    ton: a.to,
+                    label: a.label,
+                    color: "lightgreen",
+                    highlight: "lightgreen",
+                    hover: "lightblue",
+                    length: a.length,
+                  }
+                  console.log("连接成功", b.id);
+                  this.update_edge(edge);
+                  this.refresh_edges();
+                  break;
+                }
+
+              }
+            }
+            else if (a.to === id) {
+              for (let b of this.nodesArray) {
+                if (b.id === a.from && b.state === 1) {
+                  let edge = {
+                    id: a.id,
+                    fromn: a.from,
+                    ton: a.to,
+                    label: a.label,
+                    color: "lightgreen",
+                    highlight: "lightgreen",
+                    hover: "lightblue",
+                    length: a.length,
+                  }
+
+                  this.update_edge(edge);
+                  this.refresh_edges();
+                  break;
+                }
+
+
+              }
+            }
+          }
+          this.refresh_edges();
+        }
+
+
+      }
     },
 
     refresh_nodes() {
@@ -468,7 +494,7 @@ export default {
           // 更新nodesArray的值
           _this.nodesArray = resp;
 
-
+          _this.check_color(_this.nodesArray)
           // 清空并更新Vis.DataSet实例
           _this.nodes.clear();
           // _this.edges.clear();
@@ -484,6 +510,9 @@ export default {
 
           _this.network.setData(_this.data); // 使用setData方法重新设置数据
           _this.network.stabilize(); // 可选，如果您希望图稳定
+          console.log(_this.nodes);
+
+
         }
       });
     },
@@ -503,7 +532,6 @@ export default {
             }
           }
           console.log("类型：" + this.node.type);
-
 
         }
       })
@@ -547,7 +575,6 @@ export default {
 
 
     },
-
 
     update_node(node) {
 
@@ -640,11 +667,6 @@ export default {
                   }
                 }
               }
-
-
-
-
-
 
             }
 
@@ -817,6 +839,8 @@ export default {
 
   },
 
+
+
   mounted() {
     this.init();
     this.refresh_nodes();
@@ -878,9 +902,6 @@ export default {
 .inline-elements {
   display: inline-block;
 }
-
-
-
 
 .button-container {
   display: flex;

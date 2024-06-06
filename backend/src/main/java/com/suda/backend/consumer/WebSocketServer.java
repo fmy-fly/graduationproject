@@ -16,8 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 @ServerEndpoint("/websocket/{token}")
 public class WebSocketServer {
-    @Autowired
-    private static AddOperateService addOperateService;
+
     private static final CopyOnWriteArrayList<Session> sessions = new CopyOnWriteArrayList<>();
 
     @OnOpen
@@ -69,10 +68,7 @@ public class WebSocketServer {
         }
     }
     public static void broadcastPopUp() {
-        HashMap<String,String> map = new HashMap<>();
-        map.put("type","弹窗");
-        map.put("description","弹窗警告");
-        addOperateService.add(map);
+
         for (Session session : sessions) {
             if (session.isOpen()) {
                 try {

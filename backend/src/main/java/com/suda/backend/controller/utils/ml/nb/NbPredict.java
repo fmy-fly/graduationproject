@@ -27,6 +27,8 @@ import java.util.*;
 @Service
 public class NbPredict {
     @Autowired
+    private AddOperateService addOperateService;
+    @Autowired
     private AddDataService addDataService;
     @Autowired
     private SendMailsService sendMailsService;
@@ -84,6 +86,10 @@ public class NbPredict {
 //            sendMailsService.sendMails();
             if (alert == 2){
             WebSocketServer.broadcastPopUp();
+            HashMap<String,String> map = new HashMap<>();
+            map.put("type","弹窗");
+            map.put("description","弹窗警告");
+            addOperateService.add(map);
             System.out.println("发送警报");
             }
             else {
@@ -159,9 +165,10 @@ public class NbPredict {
             inst.setDataset(race);
             try {
                 double res = naiveBayesLoader.loadNaiveBayesModel().classifyInstance(inst);
+                // 生成攻击类型，以0~39表示不同类型
                 record[5]++;
+                // 下面对结果进行记录
                 switch((int)res){
-
                     case 0:
                         setPdd("back.");
                         record[1]++;

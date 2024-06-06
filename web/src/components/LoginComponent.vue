@@ -10,7 +10,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">密码</label>
-                        <input v-model="password" type="password" class="form-control" id="password" placeholder="请输入密码">
+                        <input v-model="password" type="password" class="form-control" id="password"
+                            placeholder="请输入密码">
                     </div>
                     <div class="error-message">{{ error_message }}</div>
                     <div class="d-grid gap-2 col-8 mx-auto">
@@ -26,7 +27,7 @@
         </div>
     </ContentField>
 </template>
-    
+
 <script>
 import ContentField from '@/components/ContentField.vue';
 import { useStore } from 'vuex';
@@ -93,8 +94,9 @@ export default {
     }
 }
 </script>
-    
-<style scoped> div.title {
+
+<style scoped>
+ div.title {
      font-size: 1rem;
      /* 设置字体大小 */
      font-weight: bolder;
@@ -146,4 +148,5 @@ export default {
 
  div.error-message {
      color: red;
- }</style>
+ }
+</style>

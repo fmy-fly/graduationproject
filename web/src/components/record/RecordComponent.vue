@@ -50,13 +50,14 @@
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
-                                    <li v-for="page in pages" :key="page" :class="{ active: page === datas.currentPage }"
-                                        @click="changePage(page)">
+                                    <li v-for="page in pages" :key="page"
+                                        :class="{ active: page === datas.currentPage }" @click="changePage(page)">
                                         <a href="#">{{ page }}</a>
                                     </li>
 
 
-                                    <li v-if="datas.currentPage < datas.total" @click="changePage(datas.currentPage + 1)">
+                                    <li v-if="datas.currentPage < datas.total"
+                                        @click="changePage(datas.currentPage + 1)">
                                         <a href="#" aria-label="Next">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
@@ -110,8 +111,8 @@
                                         <span aria-hidden="true">&laquo;</span>
                                     </a>
                                 </li>
-                                <li v-for="page in pages_o" :key="page" :class="{ active: page === operates.currentPage }"
-                                    @click="changePage_o(page)">
+                                <li v-for="page in pages_o" :key="page"
+                                    :class="{ active: page === operates.currentPage }" @click="changePage_o(page)">
                                     <a href="#">{{ page }}</a>
                                 </li>
 
@@ -165,13 +166,13 @@ export default {
         let datas = ref({
             records: [],
             total: 0,
-            pageSize: 4, // 假设默认页面大小为 10
+            pageSize: 3, // 假设默认页面大小为 10
             currentPage: 1,
         });
         let operates = ref({
             records: [],
             total: 0,
-            pageSize: 4, // 假设默认页面大小为 10
+            pageSize: 3, // 假设默认页面大小为 10
             currentPage: 1,
         });
 
@@ -373,4 +374,7 @@ div.error-message {
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-}</style>
+}
+
+
+</style>
